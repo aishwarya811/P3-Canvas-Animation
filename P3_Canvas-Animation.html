@@ -1,0 +1,230 @@
+<html>
+<head>
+<title>Responsive Interactive Canvas</title>
+<script>
+	  var canvas;
+	  var context;
+	  var circles = [];
+	  var squares = [];
+	  var stars = [];
+	  var shapes = [];
+
+	  function Square (x, color){
+		var x, y, dy; 
+		var width, height; 
+		var color; 
+
+		this.x = x; 
+		this.y = 0; 
+		this.dy = 2; 
+
+		this.width = 20; 
+		this.height = 20; 
+
+		this.color = color; 
+	}
+		  
+	  function Circle(x, y, color) {
+		this.x = x;
+		this.y = y;
+		this.color = color;
+		this.dx = Math.random()*3;
+		this.dy = Math.random()*3;
+	  }
+
+	  function Star (x, color){
+		var x, y, dy; 
+		var width, height; 
+		var spikes, outerRadius, innerRadius;
+		var color;
+
+		this.x = x; 
+		this.y = -160; 
+		this.dy = 2;
+
+		this.width = 10; 
+		this.height = 20; 
+		
+		this.spikes = 5; 
+		this.outerRadius = 10; 
+		this.innerRadius = 15; 
+		this.color = color; 
+	}
+
+	function Shape (x, color){
+		var x, y, dy; 
+		var width, height; 
+		var spikes, outerRadius, innerRadius; 
+		var color; 
+
+		this.x = x; 
+		this.y = -200; 
+		this.dy = 2; 
+		
+		this.width = 10; 
+		this.height = 10; 
+		
+		this.spikes = 20; 
+		this.outerRadius = 10; 
+		this.innerRadius = 15; 
+		this.color = color;
+	}
+
+      function init() {
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext("2d");
+ 
+        window.addEventListener('resize', resizeCanvas, false);
+        window.addEventListener('orientationchange', resizeCanvas, false);
+        resizeCanvas();
+		canvas.onclick = function(event) {
+			handleClick(event.clientX, event.clientY);
+		};
+		setInterval(handleClick, 30);
+      }
+	  function handleClick(x, y) {
+	     var found = false;
+		 for (var i=0; i<circles.length; i++) {
+			d = Math.sqrt((circles[i].x - x)*(circles[i].x - x) + (circles[i].y - y)*(circles[i].y - y));
+			if (d <= 30) {
+				circles.splice(i, 1);
+				found = true;
+			}
+		 }
+		 fillBackgroundColor();
+		 if (!found) {
+			var colors = ["red", "green", "blue", "orange", "purple", "yellow"];
+			var color = colors[Math.floor(Math.random()*colors.length)];
+			circles.push(new Circle(x, y, color));
+			squares.push(new Square (x, color));
+		}
+		for (var i=0; i<circles.length; i++) {
+			drawCircle(circles[i]);
+			drawSquare(squares[i]);
+			drawStar(stars[i]);
+			drawShape(shapes[i]);
+		}
+	  }
+	  function drawCircle(circle) {
+		 context.beginPath();
+		 context.arc(circle.x, circle.y, 50, 0, degreesToRadians(360), true);
+		 context.fillStyle = circle.color;
+		 context.fill();
+		  if (circle.x + circle.dx > canvas.width || circle.x + circle.dx < 0)
+			circle.dx = -circle.dx;
+		  if (circle.y + circle.dy > canvas.height || circle.y + circle.dy < 0)
+			circle.dy = -circle.dy;
+			circle.x += circle.dx;
+			circle.y += circle.dy;
+			  }
+	
+	function drawSquare(square) {
+		context.fillStyle = this.color; 
+		context.beginPath(); 
+		context.fillRect(this.x, this.y, 20, 20); 
+		context.closePath();
+
+		 if (square.x + square.dx > canvas.width || square.x + square.dx < 0)
+			square.dx = -square.dx;
+		  if (square.y + square.dy > canvas.height || square.y + square.dy < 0)
+			square.dy = -square.dy;
+			square.x += square.dx;
+			square.y += square.dy;
+			  
+	}
+
+	function drawStar (star) {
+	    var rot = Math.PI / 2 * 3;
+	    var x = this.x;
+	    var y = this.y;
+	    var step = Math.PI / this.spikes;
+
+	    context.beginPath();
+	    context.moveTo(this.x, this.y - this.outerRadius)
+	    for (i = 0; i < this.spikes; i++) {
+	        x = this.x + Math.cos(rot) * this.outerRadius;
+	        y = this.y + Math.sin(rot) * this.outerRadius;
+	        context.lineTo(x, y)
+	        rot += step
+
+	        x = this.x + Math.cos(rot) * this.innerRadius;
+	        y = this.y + Math.sin(rot) * this.innerRadius;
+	        context.lineTo(x, y)
+	        rot += step
+	    }
+	    context.lineTo(this.x, this.y - this.outerRadius)
+	    context.closePath();
+	    context.fillStyle = this.color;
+	    context.fill();
+
+	    if (star.x + star.dx > canvas.width || star.x + star.dx < 0)
+			star.dx = -star.dx;
+		  if (star.y + star.dy > canvas.height || star.y + star.dy < 0)
+			star.dy = -star.dy;
+			star.x += star.dx;
+			star.y += star.dy;
+
+	}
+
+	function drawShape (shape) {
+	    var rot = Math.PI / 2 * 3;
+	    var x = this.x;
+	    var y = this.y;
+	    var step = Math.PI / this.spikes;
+
+	    context.beginPath();
+	    context.moveTo(this.x, this.y - this.outerRadius)
+	    for (i = 0; i < this.spikes; i++) {
+	        x = this.x + Math.cos(rot) * this.outerRadius;
+	        y = this.y + Math.sin(rot) * this.outerRadius;
+	        context.lineTo(x, y)
+	        rot += step
+
+	        x = this.x + Math.cos(rot) * this.innerRadius;
+	        y = this.y + Math.sin(rot) * this.innerRadius;
+	        context.lineTo(x, y)
+	        rot += step
+	    }
+	    context.lineTo(this.x, this.y - this.outerRadius)
+	    context.closePath();
+	    context.fillStyle = this.color;
+	    context.fill();
+
+	     if (shape.x + shape.dx > canvas.width || shape.x + shape.dx < 0)
+			shape.dx = -shape.dx;
+		  if (shape.y + shape.dy > canvas.height || shape.y + shape.dy < 0)
+			shape.dy = -shape.dy;
+			shape.x += shape.dx;
+			shape.y += shape.dy;
+			 
+	}
+
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+		fillBackgroundColor();
+		for (var i=0; i<circles.length; i++) {
+			drawCircle(circles[i]);
+			drawSquare(squares[i]);
+			drawStar(stars[i]);
+			drawShape(shapes[i]);
+		 }
+      }
+	  function fillBackgroundColor() {
+		 //var colors = ["white", "yellow", "blue", "red"];
+		 //var bgColor = colors[Math.floor(Math.random() * colors.length)];
+		 context.fillStyle = 'black';
+		 context.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	function degreesToRadians(degrees) {
+		//converts from degrees to radians and returns
+		return (degrees * Math.PI)/180;
+	}
+	window.onload = init;
+</script>
+</head>
+<body>
+<canvas id="canvas" width="1279" height="150"></canvas>
+	  
+</body></html>
